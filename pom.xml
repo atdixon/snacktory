@@ -74,6 +74,24 @@
             </plugin>
         </plugins>
     </build>
+
+    <distributionManagement>
+        <repository>
+            <uniqueVersion>false</uniqueVersion>
+            <id>buzzstream_artifactory</id>
+            <name>BuzzStream internal Release repository</name>
+            <url>https://deploy-master.buzzstream.com/artifactory/libs-release-local</url>
+            <layout>default</layout>
+        </repository>
+        <snapshotRepository>
+            <uniqueVersion>true</uniqueVersion>
+            <id>buzzstream_artifactory</id>
+            <name>BuzzStream internal Snapshot Repository</name>
+            <url>https://deploy-master.buzzstream.com/artifactory/libs-snapshot-local</url>
+            <layout>default</layout>
+        </snapshotRepository>
+    </distributionManagement>
+
     <!--
     <distributionManagement>
         <snapshotRepository>
