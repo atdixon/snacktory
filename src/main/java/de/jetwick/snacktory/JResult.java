@@ -15,6 +15,8 @@
  */
 package de.jetwick.snacktory;
 
+import org.jsoup.nodes.Element;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -42,6 +44,8 @@ public class JResult implements Serializable {
     private List<String> textList;
     private Collection<String> keywords;
     private List<ImageResult> images = null;
+
+    private Element bestMatchElement;
 
     public JResult() {
     }
@@ -207,6 +211,14 @@ public class JResult implements Serializable {
      */
     public void setImages(List<ImageResult> images) {
         this.images = images;
+    }
+
+    public Element getBestMatchElement() {
+        return bestMatchElement;
+    }
+
+    public void setBestMatchElement(Element bestMatchElement) {
+        this.bestMatchElement = bestMatchElement;
     }
 
     @Override
