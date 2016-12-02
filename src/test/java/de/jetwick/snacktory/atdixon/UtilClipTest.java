@@ -9,7 +9,7 @@ import static java.util.Arrays.asList;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-public final class SpecialOutputFormatterTest {
+public final class UtilClipTest {
 
     @Test
     public void testSimpleClipScenarios() {
@@ -22,7 +22,7 @@ public final class SpecialOutputFormatterTest {
         // SCENARIO -- empty everything
         metas = new ArrayList<>();
         clips = new ArrayList<>();
-        r = SpecialOutputFormatter.clip(metas, clips);
+        r = InternalUtil.clip(metas, clips);
         assertTrue(r.isEmpty());
 
         // SCENARIO -- clip one BEFORE meta
@@ -30,7 +30,7 @@ public final class SpecialOutputFormatterTest {
         metas.add(new RangeMeta<>(50, 25, "foo"));
         clips = new ArrayList<>();
         clips.add(new Integer[] { 0, 25 });
-        r = SpecialOutputFormatter.clip(metas, clips);
+        r = InternalUtil.clip(metas, clips);
         assertEquals(r.size(), 1);
         rm = r.iterator().next();
         assertEquals(new RangeMeta<>(25, 25, "foo"), rm);
@@ -40,7 +40,7 @@ public final class SpecialOutputFormatterTest {
         metas.add(new RangeMeta<>(0, 25, "foo"));
         clips = new ArrayList<>();
         clips.add(new Integer[] { 50, 25 });
-        r = SpecialOutputFormatter.clip(metas, clips);
+        r = InternalUtil.clip(metas, clips);
         assertEquals(r.size(), 1);
         rm = r.iterator().next();
         assertEquals(new RangeMeta<>(0, 25, "foo"), rm);
@@ -50,7 +50,7 @@ public final class SpecialOutputFormatterTest {
         metas.add(new RangeMeta<>(25, 25, "foo"));
         clips = new ArrayList<>();
         clips.add(new Integer[] { 10, 25 });
-        r = SpecialOutputFormatter.clip(metas, clips);
+        r = InternalUtil.clip(metas, clips);
         assertEquals(r.size(), 1);
         rm = r.iterator().next();
         assertEquals(new RangeMeta<>(10, 15, "foo"), rm);
@@ -60,7 +60,7 @@ public final class SpecialOutputFormatterTest {
         metas.add(new RangeMeta<>(10, 25, "foo"));
         clips = new ArrayList<>();
         clips.add(new Integer[] { 25, 25 });
-        r = SpecialOutputFormatter.clip(metas, clips);
+        r = InternalUtil.clip(metas, clips);
         assertEquals(r.size(), 1);
         rm = r.iterator().next();
         assertEquals(new RangeMeta<>(10, 15, "foo"), rm);
@@ -74,7 +74,7 @@ public final class SpecialOutputFormatterTest {
         for (int i = 0; i < 90; i += 10)
             clips.add(new Integer[] { i, 10 });
         // assert: clips = "
-        r = SpecialOutputFormatter.clip(metas, clips);
+        r = InternalUtil.clip(metas, clips);
         assertEquals(r.size(), metas.size());
         assertEquals(asList(
             new RangeMeta<>(0, 0, "a"),
@@ -96,7 +96,7 @@ public final class SpecialOutputFormatterTest {
         clips = new ArrayList<>();
         clips.add(new Integer[] { 2, 85 }); // [2, 87)
         // assert: clips = "
-        r = SpecialOutputFormatter.clip(metas, clips);
+        r = InternalUtil.clip(metas, clips);
         assertEquals(r.size(), metas.size());
         assertEquals(asList(
             new RangeMeta<>(2, 0, "a"),
@@ -128,7 +128,7 @@ public final class SpecialOutputFormatterTest {
         for (int i = 5; i < 100; i += 10)
             clips.add(new Integer[] { i, 5 });
         // assert: clips = [[5, 5] [15, 5] [25, 5] [35, 5] [45, 5] [55, 5] ... [95, 5]]
-        r = SpecialOutputFormatter.clip(metas, clips);
+        r = InternalUtil.clip(metas, clips);
         assertEquals(r.size(), metas.size());
         // expected: [[0, 5] ...
         assertEquals(asList(
@@ -157,7 +157,7 @@ public final class SpecialOutputFormatterTest {
         for (int i = 0; i < 100; i += 20)
             clips.add(new Integer[] { i, 15 });
         // assert: clips = [[0, 15] [20, 15] [40, 15] [60, 15] [80, 15]]
-        r = SpecialOutputFormatter.clip(metas, clips);
+        r = InternalUtil.clip(metas, clips);
         assertEquals(r.size(), metas.size());
         assertEquals(asList(
             new RangeMeta<>(0, 0, "a"),
@@ -185,7 +185,7 @@ public final class SpecialOutputFormatterTest {
         for (int i = 1; i < 100; i += 30)
             clips.add(new Integer[]{i, 25});
         // assert: clips = [[1, 25] [31, 25] [61, 25] [91, 25]]
-        r = SpecialOutputFormatter.clip(metas, clips);
+        r = InternalUtil.clip(metas, clips);
         assertEquals(r.size(), metas.size());
         assertEquals(asList(
             new RangeMeta<>(1, 0, "a"),

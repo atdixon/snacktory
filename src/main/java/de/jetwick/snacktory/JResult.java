@@ -133,6 +133,10 @@ public class JResult implements Serializable {
         return text;
     }
 
+    public String getTextOrNull() {
+        return text;
+    }
+
     public JResult setText(String text) {
         this.text = text;
         return this;

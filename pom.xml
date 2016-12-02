@@ -5,7 +5,7 @@
 
     <groupId>de.jetwick</groupId>
     <artifactId>snacktory</artifactId>
-    <version>1.3.atdixon4</version>
+    <version>1.3.atdixon5</version>
     <packaging>jar</packaging>
 
     <name>Snacktory</name>
