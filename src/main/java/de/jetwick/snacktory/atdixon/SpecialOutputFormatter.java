@@ -26,7 +26,7 @@ public final class SpecialOutputFormatter extends OutputFormatter {
         _append(topNode, sb, nodesToKeepCssSelector);
         WithMeta<String> str = _innerTrim(sb);
         if (str.value().length() > 100)
-            return WithMeta.of(str.toString(), str.meta());
+            return WithMeta.of(str.value(), str.meta());
 
         // no subelements
         if (str.value().isEmpty() || !topNode.text().isEmpty() && str.value().length() <= topNode.ownText().length())
