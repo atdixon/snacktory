@@ -8,9 +8,9 @@ import org.jsoup.nodes.Node;
 import org.jsoup.nodes.TextNode;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Stack;
 
 /**
@@ -65,25 +65,22 @@ public final class SpecialOutputFormatter extends OutputFormatter {
             sb.append(c);
         }
 
-        return WithMeta.of(sb.toString(),
-            new HashMap<String, List<Object>>() {{
-                put("href", clip(str.meta().get("href"), clips));
-            }});
+        return WithMeta.of(sb.toString(), Href.class, clip(str.getMeta(Href.class), clips));
     }
 
     /**
      * Recompute meta (offset, len) values given the provided clips. Visible for testing.
      */
-    public static List<Object/*StringMeta*/> clip(List<Object/*StringMeta*/> metas, List<Integer[]> clips) {
+    public static <T> List<RangeMeta<T>> clip(List<RangeMeta<T>> metas, List<Integer[]> clips) {
         // assume meta is in order
         // assume clips is in order
 
-        final List<Object/*StringMeta*/> answer = new ArrayList<>();
+        final List<RangeMeta<T>> answer = new ArrayList<>();
 
         // meta stack -- "earliest" metas on top
-        final Stack<StringMeta> metaStack = new Stack<>();
+        final Stack<RangeMeta<T>> metaStack = new Stack<>();
         for (int i = metas.size() - 1; i >= 0; --i)
-            metaStack.push((StringMeta) metas.get(i));
+            metaStack.push(metas.get(i));
 
         // clip stack -- "earliest" clips on top
         final Stack<Integer[]> clipStack = new Stack<>();
@@ -93,11 +90,11 @@ public final class SpecialOutputFormatter extends OutputFormatter {
         int clipped = 0; // number of clipped chars before curr-meta
         while (!metaStack.isEmpty()) {
             if (clipStack.isEmpty()) {
-                final StringMeta currMeta = metaStack.pop();
-                answer.add(new StringMeta(currMeta.offset - clipped, currMeta.len, currMeta.val));
+                final RangeMeta<T> currMeta = metaStack.pop();
+                answer.add(new RangeMeta<>(currMeta.offset - clipped, currMeta.len, currMeta.val));
                 continue;
             }
-            final StringMeta currMeta = metaStack.peek();
+            final RangeMeta<T> currMeta = metaStack.peek();
             final Integer[] currClip = clipStack.peek();
 
             if (currClip[0] + currClip[1] <= currMeta.offset) { // clip entirely precedes current meta
@@ -105,7 +102,7 @@ public final class SpecialOutputFormatter extends OutputFormatter {
                 clipped += currClip[1];
             } else if (currClip[0] >= currMeta.offset + currMeta.len) { // clip entirely succeeds current meta
                 metaStack.pop(); // move to next meta
-                answer.add(new StringMeta(currMeta.offset - clipped, currMeta.len, currMeta.val));
+                answer.add(new RangeMeta<>(currMeta.offset - clipped, currMeta.len, currMeta.val));
             } else { // current clip overlaps current meta
                 clipStack.pop(); // move to next clip
                 metaStack.pop(); // move to next meta
@@ -134,7 +131,7 @@ public final class SpecialOutputFormatter extends OutputFormatter {
                     Math.max(0, (curr[0] + curr[1]) - (currMeta.offset + currMeta.len));
 
                 // now that we've handled all clips potentially affecting current meta, add adjusted current meta
-                answer.add(new StringMeta(currMeta.offset - clipped - prec, currMeta.len - snipped, currMeta.val));
+                answer.add(new RangeMeta<>(currMeta.offset - clipped - prec, currMeta.len - snipped, currMeta.val));
 
                 // push a new/adjusted clip to clip anything that *follows* current meta (note: succ may = 0)
                 clipStack.push(new Integer[] { currMeta.offset + currMeta.len, succ });
@@ -147,7 +144,7 @@ public final class SpecialOutputFormatter extends OutputFormatter {
         return answer;
     }
 
-    private static boolean overlaps(Integer[] clip, StringMeta meta) {
+    private static boolean overlaps(Integer[] clip, RangeMeta<?> meta) {
         return clip[0] < (meta.offset + meta.len)
             && (clip[0] + clip[1]) > meta.offset;
     }
@@ -194,7 +191,7 @@ public final class SpecialOutputFormatter extends OutputFormatter {
                     accum.value().append(" ");
                 else if (element.tagName().equals("br"))
                     accum.value().append(" ");
-                if (element.tagName().equals("a")) {
+                if (!isEmpty(element.attr("href"))) {
                     final StringBuilder hrefText = new StringBuilder();
                     // note: here we call super version of method because we don't need metadata
                     // accumulated *within* an "a" tag.
@@ -202,10 +199,10 @@ public final class SpecialOutputFormatter extends OutputFormatter {
                     if (hrefText.length() > 1) {
                         final String href = element.attr("href");
                         if (href != null && href.trim().length() > 0) { // href is not blank
-                            final StringMeta meta
-                                = new StringMeta(accum.value().length(), hrefText.length(), href);
+                            final RangeMeta<Href> meta
+                                = new RangeMeta<>(accum.value().length(), hrefText.length(), new Href(element.tagName(), href));
                             accum.value().append(hrefText);
-                            accum.addMeta("href", meta);
+                            accum.addMeta(Href.class, meta);
                         }
                     }
                 } else {
@@ -215,15 +212,22 @@ public final class SpecialOutputFormatter extends OutputFormatter {
         }
     }
 
+    private static boolean isEmpty(String val) {
+        return val == null || val.trim().isEmpty();
+    }
+
     /** Append source to target merging and adjusting known metadata. */
+    @SuppressWarnings("unchecked")
     private static void internalSpecialAppend(WithMeta<StringBuilder> target,
                                               WithMeta<StringBuilder> source) {
         final int targetLen = target.value().length();
         target.value().append(source.value()); // append the actual text
         // append the meta, creating new metas with adjusted offsets
-        for (Object meta : source.getMeta("href")) {
-            final StringMeta asImpl = (StringMeta) meta;
-            target.addMeta("href", new StringMeta(asImpl.offset + targetLen, asImpl.len, asImpl.val));
+        for (Map.Entry<Class, List<RangeMeta>> e : source.meta().entrySet()) {
+            for (RangeMeta v : e.getValue()) {
+                target.addMeta(e.getKey(),
+                    new RangeMeta(v.offset + targetLen, v.len, v.val));
+            }
         }
     }
 

@@ -36,7 +36,7 @@ public final class SpecialArticleTextExtractor extends ArticleTextExtractor {
             // this fails for short facebook post and probably tweets: text.length() > res.getDescription().length()
             if (text.value().length() > res.getTitle().length()) {
                 res.setText(text.value());
-                res.setTextMeta(text.meta());
+                res.setTextMeta(text.getMeta(Href.class));
 //                print("best element:", bestMatchElement);
             }
             res.setTextList(formatter.getTextList(bestMatchElement));

@@ -15,6 +15,8 @@
  */
 package de.jetwick.snacktory;
 
+import de.jetwick.snacktory.atdixon.Href;
+import de.jetwick.snacktory.atdixon.RangeMeta;
 import org.jsoup.nodes.Element;
 
 import java.io.Serializable;
@@ -22,7 +24,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Parsed result from web page containing important title, text and image.
@@ -47,7 +48,7 @@ public class JResult implements Serializable {
     private List<ImageResult> images = null;
 
     private Element bestMatchElement;
-    private Map<String, List<Object>> textMeta;
+    private List<RangeMeta<Href>> textMeta;
 
     public JResult() {
     }
@@ -137,11 +138,11 @@ public class JResult implements Serializable {
         return this;
     }
 
-    public Map<String, List<Object>> getTextMeta() {
+    public List<RangeMeta<Href>> getTextMeta() {
         return textMeta;
     }
 
-    public void setTextMeta(Map<String, List<Object>> textMeta) {
+    public void setTextMeta(List<RangeMeta<Href>> textMeta) {
         this.textMeta = textMeta;
     }
 

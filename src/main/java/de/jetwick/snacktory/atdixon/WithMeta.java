@@ -7,46 +7,54 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Wraps an object with metadata that is a mapping of keys to value(s).
+ * Wraps an object with metadata that is a mapping of types to metadata value(s) of that type.
  * Not thread-safe.
  */
-public final class WithMeta<T> {
+public final class WithMeta<T extends CharSequence> {
 
-    public static <T> WithMeta<T> of(T val) {
-        return new WithMeta<T>(val, new HashMap<String, List<Object>>());
+    public static <T extends CharSequence> WithMeta<T> of(T val) {
+        return new WithMeta<>(val, new HashMap<Class, List<RangeMeta>>());
     }
 
-    public static <T> WithMeta<T> of(T val, Map<String, List<Object>> meta) {
-        return new WithMeta<T>(val, new HashMap<String, List<Object>>(meta)); // copy, so its guaranteed mutable and separate from others
+    @SuppressWarnings("unchecked")
+    public static <C, T extends CharSequence> WithMeta<T> of(T val, final Class<C> type, final List<RangeMeta<C>> meta) {
+        return new WithMeta<>(val, new HashMap<Class, List<RangeMeta>>() {{
+            put(type, (List) meta);
+        }});
+    }
+
+    public static <T extends CharSequence> WithMeta<T> of(T val, Map<Class, List<RangeMeta>> meta) {
+        return new WithMeta<>(val, meta);
     }
 
     private final T value;
-    private final Map<String, List<Object>> meta;
+    private final Map<Class, List<RangeMeta>> meta;
 
-    private WithMeta(T value, Map<String, List<Object>> meta) {
+    private WithMeta(T value, Map<Class, List<RangeMeta>> meta) {
         this.value = value;
-        this.meta = meta;
+        this.meta = new HashMap<>(meta); // copy, so it's guaranteed mutable and separate from others
     }
 
     public T value() {
         return value;
     }
 
-    public Map<String, List<Object>> meta() {
+    /*package*/ Map<Class, List<RangeMeta>> meta() {
         return Collections.unmodifiableMap(meta);
     }
 
     /** Answers possibly empty never null list. */
-    public List<Object> getMeta(String key) {
-        List<Object> existing = meta.get(key);
+    @SuppressWarnings("unchecked")
+    public <C> List<RangeMeta<C>> getMeta(Class<C> type) {
+        List existing = meta.get(type);
         if (existing == null)
-            meta.put(key, existing = new ArrayList<Object>());
+            meta.put(type, existing = new ArrayList<>());
         return existing;
     }
 
-    public void addMeta(String key, Object val) {
+    public <C> void addMeta(Class<C> type, RangeMeta<C> val) {
         // add to *end*
-        getMeta(key).add(val);
+        getMeta(type).add(val);
     }
 
 }
