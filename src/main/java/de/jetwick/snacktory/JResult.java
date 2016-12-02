@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Parsed result from web page containing important title, text and image.
@@ -46,6 +47,7 @@ public class JResult implements Serializable {
     private List<ImageResult> images = null;
 
     private Element bestMatchElement;
+    private Map<String, List<Object>> textMeta;
 
     public JResult() {
     }
@@ -133,6 +135,14 @@ public class JResult implements Serializable {
     public JResult setText(String text) {
         this.text = text;
         return this;
+    }
+
+    public Map<String, List<Object>> getTextMeta() {
+        return textMeta;
+    }
+
+    public void setTextMeta(Map<String, List<Object>> textMeta) {
+        this.textMeta = textMeta;
     }
 
     public List<String> getTextList() {

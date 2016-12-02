@@ -150,6 +150,20 @@ public class ArticleTextExtractor {
             }
         }
 
+        handleBestMatchElement(res, formatter, bestMatchElement);
+
+        if (res.getImageUrl().isEmpty()) {
+            res.setImageUrl(extractImageUrl(doc));
+        }
+
+        res.setRssUrl(extractRssUrl(doc));
+        res.setVideoUrl(extractVideoUrl(doc));
+        res.setFaviconUrl(extractFaviconUrl(doc));
+        res.setKeywords(extractKeywords(doc));
+        return res;
+    }
+
+    protected void handleBestMatchElement(JResult res, OutputFormatter formatter, Element bestMatchElement) {
         if (bestMatchElement != null) {
             List<ImageResult> images = new ArrayList<ImageResult>();
             Element imgEl = determineImageSource(bestMatchElement, images);
@@ -173,16 +187,6 @@ public class ArticleTextExtractor {
 
             res.setBestMatchElement(bestMatchElement);
         }
-
-        if (res.getImageUrl().isEmpty()) {
-            res.setImageUrl(extractImageUrl(doc));
-        }
-
-        res.setRssUrl(extractRssUrl(doc));
-        res.setVideoUrl(extractVideoUrl(doc));
-        res.setFaviconUrl(extractFaviconUrl(doc));
-        res.setKeywords(extractKeywords(doc));
-        return res;
     }
 
     protected String extractTitle(Document doc) {

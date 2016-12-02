@@ -2,14 +2,14 @@ package de.jetwick.snacktory;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Element;
+import org.jsoup.nodes.Node;
+import org.jsoup.nodes.TextNode;
 import org.jsoup.select.Elements;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Pattern;
-import org.jsoup.nodes.Node;
-import org.jsoup.nodes.TextNode;
 
 /**
  * @author goose | jim
@@ -114,7 +114,7 @@ public class OutputFormatter {
         }
     }
 
-    boolean unlikely(Node e) {
+    protected boolean unlikely(Node e) {
         if (e.attr("class") != null && e.attr("class").toLowerCase().contains("caption"))
             return true;
 
@@ -125,7 +125,7 @@ public class OutputFormatter {
         return false;
     }
 
-    void appendTextSkipHidden(Element e, StringBuilder accum) {
+    protected void appendTextSkipHidden(Element e, StringBuilder accum) {
         for (Node child : e.childNodes()) {
             if (unlikely(child))
                 continue;
@@ -144,7 +144,7 @@ public class OutputFormatter {
         }
     }
 
-    boolean lastCharIsWhitespace(StringBuilder accum) {
+    protected boolean lastCharIsWhitespace(StringBuilder accum) {
         if (accum.length() == 0)
             return false;
         return Character.isWhitespace(accum.charAt(accum.length() - 1));
